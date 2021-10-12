@@ -1,0 +1,26 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+
+# Route Editor
+GET     /_editor/api-routes                 controllers.CustomAPIController.getRoutes()
+GET     /_editor/api-routes/:route          controllers.CustomAPIController.getRoute(route: String)
+POST    /_editor/api-routes                 controllers.CustomAPIController.setRoute(request: Request)
+DELETE  /_editor/api-routes                 controllers.CustomAPIController.deleteRoute(request: Request)
+PUT     /_editor/api-routes                 controllers.CustomAPIController.updateRoute(request: Request)
+
+# Template Editor
+GET     /_editor/templates/:route           controllers.TemplateController.getTemplate(route: String)
+POST    /_editor/templates                  controllers.TemplateController.createTemplate(request: Request)
+DELETE  /_editor/templates                  controllers.TemplateController.deleteTemplate(request: Request)
+PUT     /_editor/templates                  controllers.TemplateController.updateTemplate(request: Request)
+
+# Entry Editor
+GET     /_editor/entries/:parent            controllers.EntryController.getEntries(parent: String)
+GET     /_editor/entries/:parent/:child     controllers.EntryController.getEntry(parent: String, child: String)
+POST    /_editor/entries                    controllers.EntryController.createEntry(request: Request)
+DELETE  /_editor/entries                    controllers.EntryController.deleteEntry(request: Request)
+PUT     /_editor/entries                    controllers.EntryController.updateEntry(request: Request)
