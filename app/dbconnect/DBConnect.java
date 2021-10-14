@@ -40,6 +40,7 @@ public class DBConnect {
                 "content varchar, " +
                 "teaser varchar, " +
                 "title varchar, " +
+                "name varchar NOT NULL, " +
                 "slug varchar NOT NULL UNIQUE" +
                 ");";
         final String createTemplatesTable =

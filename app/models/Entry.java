@@ -11,5 +11,16 @@ public class Entry {
     private String content;
     private String teaser;
     private String title;
+    private String name;
     private String slug;
+
+    public void setParent(String _parent) {
+        parent = _parent;
+        slug = parent + name;
+    }
+
+    public void setName(String _name) {
+        name = _name;
+        slug = parent + name;
+    }
 }

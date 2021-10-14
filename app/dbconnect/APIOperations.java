@@ -150,7 +150,18 @@ public class APIOperations {
         try {
             connection = _dbConnect.connect();
             statement = connection.createStatement();
-            boolean execute = statement.execute(sql);
+            if(!diff.getRoute().isEmpty()){
+                String updateEntriesParent = "UPDATE entries SET parent = '"+diff.getRoute()+"', slug = '"+
+                        diff.getRoute()+"' || name WHERE parent = (SELECT route FROM apis WHERE rowid = "+
+                        updateAPIRoute.getRowid()+")";
+                String updateTemplateParent = "UPDATE templates SET parent = '"+diff.getRoute()+"' WHERE parent = " +
+                        "(SELECT route FROM apis WHERE " +
+                        "rowid = "+updateAPIRoute.getRowid()+")";
+                statement.addBatch(updateEntriesParent);
+                statement.addBatch(updateTemplateParent);
+            }
+            statement.addBatch(sql);
+            statement.executeBatch();
             return Status.SUCCESS.toString();
         } catch (SQLException e) {
             System.out.println(e.getMessage());

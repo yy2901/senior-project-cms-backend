@@ -42,7 +42,7 @@ public class EntryController extends Controller {
             JsonNode jsonNode = request.body().asJson();
             ObjectMapper mapper = new ObjectMapper();
             Entry entry = mapper.treeToValue(jsonNode, Entry.class);
-            String status = _entryOperations.createEntry(entry.getParent(),entry.getSlug());
+            String status = _entryOperations.createEntry(entry.getParent(),entry.getName());
             return ok(status);
         } catch (JsonProcessingException e) {
             return internalServerError();
