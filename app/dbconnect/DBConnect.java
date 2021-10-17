@@ -29,9 +29,11 @@ public class DBConnect {
                 "CREATE TABLE IF NOT EXISTS apis (" +
                 "route varchar NOT NULL UNIQUE, " +
                 "content varchar, " +
-                "_limit int, " +
-                "type varchar, " +
-                "_order varchar " +
+                "_limit int DEFAULT 10, " +
+                "type varchar DEFAULT 'COLLECTION', " +
+                "_order varchar DEFAULT 'DESC', " +
+                "template varchar, " +
+                "deleted varchar DEFAULT 'FALSE'" +
                 ");";
         final String createEntriesTable =
                 "CREATE TABLE IF NOT EXISTS entries (" +
@@ -41,13 +43,15 @@ public class DBConnect {
                 "teaser varchar, " +
                 "title varchar, " +
                 "name varchar NOT NULL, " +
-                "slug varchar NOT NULL UNIQUE" +
+                "slug varchar NOT NULL UNIQUE, " +
+                "deleted varchar DEFAULT 'FALSE'" +
                 ");";
         final String createTemplatesTable =
                 "CREATE TABLE IF NOT EXISTS templates (" +
                 "parent varchar NOT NULL UNIQUE, " +
                 "fields varchar, " +
-                "teaser varchar" +
+                "teaser varchar," +
+                "deleted varchar DEFAULT 'FALSE'" +
                 ");";
         try {
             Connection connection = this.connect();

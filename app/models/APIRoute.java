@@ -12,10 +12,12 @@ import lombok.Setter;
 public class APIRoute {
     private Long rowid;
     private String route;
-    private String content;
+    private String content;//content of the route when this route is a single type
+    private String template;//template of the content when this route is a single type
     private Integer _limit;
     private Type type;
     private Order _order;
+    private Deleted deleted;
 
     private enum Type {
         SINGLE, COLLECTION

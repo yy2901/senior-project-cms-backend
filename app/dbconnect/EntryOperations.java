@@ -17,12 +17,39 @@ public class EntryOperations {
         _dbConnect = dbConnect;
     }
 
+    public ImmutableList<Entry> getTrashedEntries() {
+        final String sql = "SELECT rowid, title, slug FROM entries WHERE deleted = 'TRUE';";
+        ImmutableList.Builder<Entry> immutableListBuilder = new ImmutableList.Builder<>();
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try {
+            connection= _dbConnect.connect();
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                Entry entry = new Entry();
+                entry.setRowid(resultSet.getLong("rowid"));
+                entry.setTitle(resultSet.getString("title"));
+                entry.setSlug(resultSet.getString("slug"));
+                immutableListBuilder.add(entry);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try { resultSet.close(); } catch (Exception e) { /* Ignored */ }
+            try { statement.close(); } catch (Exception e) { /* Ignored */ }
+            try { connection.close(); } catch (Exception e) { /* Ignored */ }
+        }
+        return immutableListBuilder.build();
+    }
+
     /**
      * Get Entries
      * @return list of Entries
      */
     public ImmutableList<Entry> getEntries(String parent) {
-        final String sql = "SELECT rowid, title, name, parent, slug FROM entries WHERE parent = '"+parent+"' ORDER BY time DESC;";
+        final String sql = "SELECT rowid, title, name, parent, slug FROM entries WHERE parent = '"+parent+"' AND deleted = 'FALSE' ORDER BY time DESC;";
         ImmutableList.Builder<Entry> immutableListBuilder = new ImmutableList.Builder<>();
         Connection connection = null;
         Statement statement = null;
@@ -55,7 +82,7 @@ public class EntryOperations {
      * @return the Entry
      */
     public Entry getEntry(String slug) {
-        final String sql = "SELECT rowid, * FROM entries WHERE slug = '"+slug+"';";
+        final String sql = "SELECT rowid, * FROM entries WHERE slug = '"+slug+"' AND deleted = 'FALSE';";
         Entry entry = new Entry();
         Connection connection = null;
         Statement statement = null;
@@ -88,18 +115,21 @@ public class EntryOperations {
      * Create an Entry
      * @return DB Execution status
      */
-    public String createEntry(String parent, String name) {
-        if (name.isEmpty()||parent.isEmpty()) {
+    public String createEntry(String parent, String name, String title) {
+        if (name==null||parent==null) {
             return Status.NO_INPUT.toString();
         }
         Timestamp timestamp =  new Timestamp(System.currentTimeMillis());
         Entry entry = new Entry();
         entry.setName(name);
         entry.setParent(parent);
-        final String insertSql = "INSERT INTO entries (parent, name, slug, time) VALUES ('" + entry.getParent() + "','" +
+        entry.setTitle(title);
+        final String insertSql = "INSERT INTO entries (parent, name, slug, time, title) VALUES ('" + entry.getParent() + "','" +
                 entry.getName() + "','" +
                 entry.getSlug() + "', " +
-                timestamp.getTime() + ");";
+                timestamp.getTime() + ", '" +
+                entry.getTitle()+ "') " +
+                "ON CONFLICT(slug) DO UPDATE SET deleted = 'FALSE';";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -123,7 +153,7 @@ public class EntryOperations {
     public String deleteEntry(long rowid) {
         Entry entry = new Entry();
         entry.setRowid(rowid);
-        final String sql = "DELETE FROM entries WHERE rowid = " + entry.getRowid() + ";";
+        final String sql = "DELETE FROM entries WHERE rowid = " + entry.getRowid() + " AND deleted = 'TRUE';";
         Connection connection = null;
         Statement statement = null;
         try {

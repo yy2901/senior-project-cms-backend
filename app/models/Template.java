@@ -9,4 +9,5 @@ public class Template {
     private String parent;
     private String fields;
     private String teaser;
+    private Deleted deleted;
 }

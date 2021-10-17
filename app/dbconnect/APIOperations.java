@@ -26,7 +26,7 @@ public class APIOperations {
      * @return list of API Routes
      */
     public ImmutableList<APIRoute> getRoutes() {
-        final String sql = "SELECT rowid, route, type FROM apis;";
+        final String sql = "SELECT rowid, route FROM apis WHERE deleted = 'FALSE';";
         ImmutableList.Builder<APIRoute> immutableListBuilder = new ImmutableList.Builder<>();
         Connection connection = null;
         Statement statement = null;
@@ -38,7 +38,32 @@ public class APIOperations {
             while (resultSet.next()) {
                 APIRoute apiRoute = new APIRoute();
                 apiRoute.setRowid(resultSet.getLong("rowid"));
-                apiRoute.setType(resultSet.getString("type"));
+                apiRoute.setRoute(resultSet.getString("route"));
+                immutableListBuilder.add(apiRoute);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            try { resultSet.close(); } catch (Exception e) { /* Ignored */ }
+            try { statement.close(); } catch (Exception e) { /* Ignored */ }
+            try { connection.close(); } catch (Exception e) { /* Ignored */ }
+        }
+        return immutableListBuilder.build();
+    }
+
+    public ImmutableList<APIRoute> getTrashedRoutes() {
+        final String sql = "SELECT rowid, route FROM apis WHERE deleted = 'TRUE';";
+        ImmutableList.Builder<APIRoute> immutableListBuilder = new ImmutableList.Builder<>();
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = _dbConnect.connect();
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                APIRoute apiRoute = new APIRoute();
+                apiRoute.setRowid(resultSet.getLong("rowid"));
                 apiRoute.setRoute(resultSet.getString("route"));
                 immutableListBuilder.add(apiRoute);
             }
@@ -57,7 +82,7 @@ public class APIOperations {
      * @return list of API Routes
      */
     public APIRoute getRoute(String route) {
-        final String sql = "SELECT rowid, * FROM apis WHERE route = '"+route+"';";
+        final String sql = "SELECT rowid, * FROM apis WHERE route = '"+route+"' AND deleted = 'FALSE';";
         APIRoute apiRoute = new APIRoute();
         Connection connection = null;
         Statement statement = null;
@@ -73,6 +98,7 @@ public class APIOperations {
                 apiRoute.set_order(resultSet.getString("_order"));
                 apiRoute.set_limit(resultSet.getInt("_limit"));
                 apiRoute.setRoute(resultSet.getString("route"));
+                apiRoute.setTemplate(resultSet.getString("template"));
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -89,12 +115,13 @@ public class APIOperations {
      * @return DB Execution status
      */
     public String setRoute(String route) {
-        if (route.isEmpty()) {
+        if (route==null) {
             return Status.NO_INPUT.toString();
         }
         APIRoute apiRoute = new APIRoute();
         apiRoute.setRoute(route);
-        final String insertSql = "INSERT INTO apis (route, _order, type, _limit) VALUES ('" + apiRoute.getRoute() + "', 'DESC', 'SINGLE', 10);";
+        final String insertSql = "INSERT INTO apis (route) VALUES ('" + apiRoute.getRoute() + "') " +
+                "ON CONFLICT(route) DO UPDATE SET deleted = 'FALSE';";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -115,13 +142,10 @@ public class APIOperations {
      * Delete and API Route
      * @return DB Execution Status
      */
-    public String deleteRoute(String route) {
-        if (route.isEmpty()) {
-            return Status.NO_INPUT.toString();
-        }
+    public String deleteRoute(long id) {
         APIRoute apiRoute = new APIRoute();
-        apiRoute.setRoute(route);
-        final String sql = "DELETE FROM apis WHERE route = '" + apiRoute.getRoute() + "';";
+        apiRoute.setRowid(id);
+        final String sql = "DELETE FROM apis WHERE rowid = '" + apiRoute.getRowid() + "' AND deleted = 'TRUE';";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -150,7 +174,7 @@ public class APIOperations {
         try {
             connection = _dbConnect.connect();
             statement = connection.createStatement();
-            if(!diff.getRoute().isEmpty()){
+            if(diff.getRoute()!=null){
                 String updateEntriesParent = "UPDATE entries SET parent = '"+diff.getRoute()+"', slug = '"+
                         diff.getRoute()+"' || name WHERE parent = (SELECT route FROM apis WHERE rowid = "+
                         updateAPIRoute.getRowid()+")";

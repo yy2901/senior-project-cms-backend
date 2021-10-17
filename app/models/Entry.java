@@ -13,6 +13,7 @@ public class Entry {
     private String title;
     private String name;
     private String slug;
+    private Deleted deleted;
 
     public void setParent(String _parent) {
         parent = _parent;

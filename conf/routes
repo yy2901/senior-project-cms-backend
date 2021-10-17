@@ -24,3 +24,6 @@ GET     /_editor/entries/:parent/:child     controllers.EntryController.getEntry
 POST    /_editor/entries                    controllers.EntryController.createEntry(request: Request)
 DELETE  /_editor/entries                    controllers.EntryController.deleteEntry(request: Request)
 PUT     /_editor/entries                    controllers.EntryController.updateEntry(request: Request)
+
+# Trash Can
+GET     /_editor/trash                      controllers.TrashCanController.getTrashCanItems()

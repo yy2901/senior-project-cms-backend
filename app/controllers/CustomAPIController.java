@@ -59,7 +59,7 @@ public class CustomAPIController extends Controller {
             JsonNode jsonNode = request.body().asJson();
             ObjectMapper objectMapper = new ObjectMapper();
             APIRoute apiRoute = objectMapper.treeToValue(jsonNode, APIRoute.class);
-            String status = _apiOperations.deleteRoute(apiRoute.getRoute());
+            String status = _apiOperations.deleteRoute(apiRoute.getRowid());
             return ok(status);
         } catch (JsonProcessingException e) {
             return internalServerError();

@@ -1,5 +1,6 @@
 package dbconnect;
 
+import com.google.common.collect.ImmutableList;
 import helpers.PartialUpdateRows;
 import models.*;
 
@@ -19,12 +20,38 @@ public class TemplateOperations {
         _dbConnect = dbConnect;
     }
 
+    public ImmutableList<Template> getTrashedTemplates() {
+        ImmutableList.Builder<Template> immutableListBuilder = new ImmutableList.Builder<>();
+        final String sql = "SELECT rowid, parent FROM templates WHERE deleted = 'TRUE';";
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = _dbConnect.connect();
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                Template template = new Template();
+                template.setRowid(resultSet.getLong("rowid"));
+                template.setParent(resultSet.getString("parent"));
+                immutableListBuilder.add(template);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try { resultSet.close(); } catch (Exception e) { /* Ignored */ }
+            try { statement.close(); } catch (Exception e) { /* Ignored */ }
+            try { connection.close(); } catch (Exception e) { /* Ignored */ }
+        }
+        return immutableListBuilder.build();
+    }
+
     /**
      * Get Template
      * @return the Template
      */
     public Template getTemplate(String route) {
-        final String sql = "SELECT rowid, * FROM templates WHERE parent = '"+route+"';";
+        final String sql = "SELECT rowid, * FROM templates WHERE parent = '"+route+"' AND deleted = 'FALSE';";
         Template template = new Template();
         Connection connection = null;
         Statement statement = null;
@@ -54,12 +81,13 @@ public class TemplateOperations {
      * @return DB Execution status
      */
     public String createTemplate(String route) {
-        if (route.isEmpty()) {
+        if (route==null) {
             return Status.NO_INPUT.toString();
         }
         Template template = new Template();
         template.setParent(route);
-        final String insertSql = "INSERT INTO templates (parent) VALUES ('" + template.getParent() + "');";
+        final String insertSql = "INSERT INTO templates (parent) VALUES ('" + template.getParent() + "') " +
+                "ON CONFLICT(parent) DO UPDATE SET deleted = 'FALSE';";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -83,7 +111,7 @@ public class TemplateOperations {
     public String deleteTemplate(long rowid) {
         Template template = new Template();
         template.setRowid(rowid);
-        final String sql = "DELETE FROM templates WHERE rowid = " + template.getRowid() + ";";
+        final String sql = "DELETE FROM templates WHERE rowid = " + template.getRowid() + " AND deleted = 'TRUE';";
         Connection connection = null;
         Statement statement = null;
         try {
