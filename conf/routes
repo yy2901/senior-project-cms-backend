@@ -27,3 +27,19 @@ PUT     /_editor/entries                    controllers.EntryController.updateEn
 
 # Trash Can
 GET     /_editor/trash                      controllers.TrashCanController.getTrashCanItems()
+
+# Uploads
+POST    /_editor/uploads                    controllers.UploadController.uploadFile(request: Request)
+GET     /uploads/*name                      controllers.UploadController.download(name)
+POST    /_editor/uploads/:originalFile      controllers.UploadController.uploadArtifact(request: Request, originalFile: Long)
+DELETE  /_editor/uploads/:originalFile      controllers.UploadController.deleteFile(originalFile: Long)
+
+# Fields for uploaded Files
+PUT     /_editor/FilesMeta                  controllers.UploadController.updateMeta(request: Request)
+GET     /_editor/FilesMeta                  controllers.UploadController.getUploadedFiles()
+GET     /_editor/FilesMeta/:id              controllers.UploadController.getUploadedFile(id: Long)
+
+GET     /_editor/FilesType/:name            controllers.UploadController.getDetailFields(name: String)
+DELETE  /_editor/FilesType/:name            controllers.UploadController.deleteDetailFields(name: String)
+POST    /_editor/FilesType                  controllers.UploadController.insertDetailFields(request: Request)
+PUT     /_editor/FilesType                  controllers.UploadController.updateDetailFields(request: Request)

@@ -1,7 +1,7 @@
 package dbconnect;
 
 import com.google.common.collect.ImmutableList;
-import helpers.PartialUpdateRows;
+import helpers.SqlGenerator;
 import models.APIRoute;
 import models.Status;
 import models.UpdateAPIRoute;
@@ -168,7 +168,7 @@ public class APIOperations {
      */
     public String updateRoute(UpdateAPIRoute updateAPIRoute) {
         APIRoute diff = updateAPIRoute.getApiRoute();
-        final String sql = "UPDATE apis SET "+ PartialUpdateRows.getSets(diff)+" WHERE rowid = "+updateAPIRoute.getRowid()+";";
+        final String sql = "UPDATE apis SET "+ SqlGenerator.getSets(diff)+" WHERE rowid = "+updateAPIRoute.getRowid()+";";
         Connection connection = null;
         Statement statement = null;
         try {

@@ -1,7 +1,7 @@
 package dbconnect;
 
 import com.google.common.collect.ImmutableList;
-import helpers.PartialUpdateRows;
+import helpers.SqlGenerator;
 import models.*;
 
 import javax.inject.Inject;
@@ -134,7 +134,7 @@ public class TemplateOperations {
      */
     public String updateTemplate(UpdateTemplate updateTemplate) {
         Template diff = updateTemplate.getTemplate();
-        final String sql = "UPDATE templates SET "+ PartialUpdateRows.getSets(diff)+" WHERE rowid = "+updateTemplate.getRowid()+";";
+        final String sql = "UPDATE templates SET "+ SqlGenerator.getSets(diff)+" WHERE rowid = "+updateTemplate.getRowid()+";";
         Connection connection = null;
         Statement statement = null;
         try {

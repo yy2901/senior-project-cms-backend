@@ -1,7 +1,7 @@
 package dbconnect;
 
 import com.google.common.collect.ImmutableList;
-import helpers.PartialUpdateRows;
+import helpers.SqlGenerator;
 import models.*;
 
 import javax.inject.Inject;
@@ -176,7 +176,7 @@ public class EntryOperations {
      */
     public String updateEntry(UpdateEntry updateEntry) {
         Entry diff = updateEntry.getEntry();
-        final String sql = "UPDATE entries SET "+ PartialUpdateRows.getSets(diff)+" WHERE rowid = "+updateEntry.getRowid()+";";
+        final String sql = "UPDATE entries SET "+ SqlGenerator.getSets(diff)+" WHERE rowid = "+updateEntry.getRowid()+";";
         Connection connection = null;
         Statement statement = null;
         try {
