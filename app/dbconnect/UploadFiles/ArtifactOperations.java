@@ -5,6 +5,7 @@ import dbconnect.DBConnect;
 import models.UploadFiles.Artifact;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -22,7 +23,10 @@ public class ArtifactOperations {
 
     public String addArtifact(String fileName, long originalFile) {
         long suffix = 1;
-        final String name = URLEncoder.encode(fileName.substring(0,fileName.lastIndexOf(".")), StandardCharsets.UTF_8);
+        String name = "NewArtifact";
+        try{
+            name = URLEncoder.encode(fileName.substring(0,fileName.lastIndexOf(".")), StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e){}
         final String ext = fileName.substring(fileName.lastIndexOf("."));
         String newFileName = name+ext;
         while(getArtifact(newFileName)!=null){
