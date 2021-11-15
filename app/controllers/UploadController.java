@@ -43,7 +43,7 @@ public class UploadController extends Controller {
     }
 
     public Result uploadFile(Http.Request request) throws IOException {
-        File directory = new File("uploads");
+        File directory = new File("../uploads");
         if(!directory.exists()) {
             directory.mkdir();
         }
@@ -64,7 +64,7 @@ public class UploadController extends Controller {
             long rowid = createdMeta.getRowid();
             _artifactOperations.updateArtifact(finalizedFileName,rowid);
             TemporaryFile file1 = file.getRef();
-            file1.copyTo(Paths.get("uploads/"+finalizedFileName),true);
+            file1.copyTo(Paths.get("../uploads/"+finalizedFileName),true);
             Meta newMeta = _metaOperations.getMeta(finalizedFileName);
             return ok(Json.toJson(newMeta));
         } else {
@@ -73,7 +73,7 @@ public class UploadController extends Controller {
     }
 
     public Result uploadArtifact(Http.Request request, long originalFile) {
-        File directory = new File("uploads");
+        File directory = new File("../uploads");
         if(!directory.exists()) {
             directory.mkdir();
         }
@@ -82,7 +82,7 @@ public class UploadController extends Controller {
         if (file != null) {
             String finalizedFileName = _artifactOperations.addArtifact(file.getFilename(), originalFile);
             TemporaryFile file1 = file.getRef();
-            file1.copyTo(Paths.get("uploads/"+finalizedFileName),true);
+            file1.copyTo(Paths.get("../uploads/"+finalizedFileName),true);
             return ok(finalizedFileName);
         } else {
             return badRequest("Missing File!");
@@ -92,7 +92,7 @@ public class UploadController extends Controller {
     public Result deleteFile(long originalFile) {
         List<String> files = _artifactOperations.deleteArtifacts(originalFile);
         files.forEach(fileName->{
-            File file = new java.io.File("uploads/"+fileName);
+            File file = new java.io.File("../uploads/"+fileName);
             file.delete();
         });
         return ok(_metaOperations.deleteMeta(originalFile));
@@ -111,7 +111,7 @@ public class UploadController extends Controller {
     }
 
     public Result download(String name){
-        return ok(new java.io.File("uploads/"+name));
+        return ok(new java.io.File("../uploads/"+name));
     }
 
     public Result getUploadedFile(long id){

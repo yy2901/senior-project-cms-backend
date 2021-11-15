@@ -21,7 +21,7 @@ public class DBConnect {
      * @return the connection
      */
     public Connection connect() {
-        final String url = "jdbc:sqlite:cms-data.db";
+        final String url = "jdbc:sqlite:../cms-data.db";
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(url);
