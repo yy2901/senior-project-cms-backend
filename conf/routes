@@ -42,7 +42,7 @@ POST    /_editor/FilesType                  controllers.UploadController.insertD
 PUT     /_editor/FilesType                  controllers.UploadController.updateDetailFields(request: Request)
 
 # Public Entrypoints
-GET     /:parent/:name                      controllers.PublicEndpointsController.getEntry(parent: String, name: String)
+GET     /api/:parent/:name                  controllers.PublicEndpointsController.getEntry(parent: String, name: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /dashboard                          controllers.Assets.at(path="/public",file="index.html")
