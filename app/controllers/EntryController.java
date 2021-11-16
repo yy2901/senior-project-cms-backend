@@ -15,6 +15,7 @@ import play.mvc.Result;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.List;
 
 @Singleton
 public class EntryController extends Controller {
@@ -28,7 +29,7 @@ public class EntryController extends Controller {
     }
 
     public Result getEntries(String parent) {
-        ImmutableList<Entry> entries = _entryOperations.getEntries("/"+parent);
+        List<Entry> entries = _entryOperations.getEntries("/"+parent);
         return ok(Json.toJson(entries));
     }
 

@@ -29,10 +29,10 @@ public class PublicEndpointsController extends Controller {
         result.put("slug",entry.getSlug());
         result.put("time",entry.getTime());
         if(entry.getTeaser()!=null){
-            result.set("teaser",Json.parse(entry.getTeaser()));
+            result.set("teaser",entry.getTeaser());
         }
         if(entry.getContent()!=null){
-            result.set("content",Json.parse(entry.getContent()));
+            result.set("content",entry.getContent());
         }
         return ok(result);
     }

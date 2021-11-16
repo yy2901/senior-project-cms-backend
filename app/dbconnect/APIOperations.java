@@ -1,10 +1,11 @@
 package dbconnect;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import helpers.SqlGenerator;
 import models.APIRoute;
 import models.Status;
 import models.UpdateAPIRoute;
+import play.libs.Json;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -12,6 +13,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Singleton
 public class APIOperations {
@@ -25,56 +30,32 @@ public class APIOperations {
      * Get API Routes
      * @return list of API Routes
      */
-    public ImmutableList<APIRoute> getRoutes() {
+    public List<APIRoute> getRoutes() {
         final String sql = "SELECT rowid, route FROM apis WHERE deleted = 'FALSE';";
-        ImmutableList.Builder<APIRoute> immutableListBuilder = new ImmutableList.Builder<>();
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = _dbConnect.connect();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(sql);
-            while (resultSet.next()) {
-                APIRoute apiRoute = new APIRoute();
-                apiRoute.setRowid(resultSet.getLong("rowid"));
-                apiRoute.setRoute(resultSet.getString("route"));
-                immutableListBuilder.add(apiRoute);
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            try { resultSet.close(); } catch (Exception e) { /* Ignored */ }
-            try { statement.close(); } catch (Exception e) { /* Ignored */ }
-            try { connection.close(); } catch (Exception e) { /* Ignored */ }
-        }
-        return immutableListBuilder.build();
+        List<Map<String,Object>> results = _dbConnect.getResults(sql, ImmutableMap.of(
+                "rowid", long.class.getSimpleName(),
+                "route", String.class.getSimpleName()
+        ));
+        return results.stream().map(result->{
+            APIRoute apiRoute = new APIRoute();
+            apiRoute.setRowid((long) result.get("rowid"));
+            apiRoute.setRoute((String) result.get("route"));
+            return apiRoute;
+        }).collect(Collectors.toList());
     }
 
-    public ImmutableList<APIRoute> getTrashedRoutes() {
+    public List<APIRoute> getTrashedRoutes() {
         final String sql = "SELECT rowid, route FROM apis WHERE deleted = 'TRUE';";
-        ImmutableList.Builder<APIRoute> immutableListBuilder = new ImmutableList.Builder<>();
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = _dbConnect.connect();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(sql);
-            while (resultSet.next()) {
-                APIRoute apiRoute = new APIRoute();
-                apiRoute.setRowid(resultSet.getLong("rowid"));
-                apiRoute.setRoute(resultSet.getString("route"));
-                immutableListBuilder.add(apiRoute);
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            try { resultSet.close(); } catch (Exception e) { /* Ignored */ }
-            try { statement.close(); } catch (Exception e) { /* Ignored */ }
-            try { connection.close(); } catch (Exception e) { /* Ignored */ }
-        }
-        return immutableListBuilder.build();
+        List<Map<String,Object>> results = _dbConnect.getResults(sql, ImmutableMap.of(
+                "rowid", long.class.getSimpleName(),
+                "route", String.class.getSimpleName()
+        ));
+        return results.stream().map(result->{
+            APIRoute apiRoute = new APIRoute();
+            apiRoute.setRowid((long) result.get("rowid"));
+            apiRoute.setRoute((String) result.get("route"));
+            return apiRoute;
+        }).collect(Collectors.toList());
     }
 
     /**
@@ -83,29 +64,21 @@ public class APIOperations {
      */
     public APIRoute getRoute(String route) {
         final String sql = "SELECT rowid, * FROM apis WHERE route = '"+route+"' AND deleted = 'FALSE';";
+        List<Map<String,Object>> results = _dbConnect.getResults(sql, DBConnect.generateRequiredColumns(APIRoute.class));
         APIRoute apiRoute = new APIRoute();
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = _dbConnect.connect();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(sql);
-            while (resultSet.next()) {
-                apiRoute.setRowid(resultSet.getLong("rowid"));
-                apiRoute.setType(resultSet.getString("type"));
-                apiRoute.setContent(resultSet.getString("content"));
-                apiRoute.set_order(resultSet.getString("_order"));
-                apiRoute.set_limit(resultSet.getInt("_limit"));
-                apiRoute.setRoute(resultSet.getString("route"));
-                apiRoute.setTemplate(resultSet.getString("template"));
+        if(results.size()>=1){
+            Map<String, Object> result = results.get(0);
+            apiRoute.setRowid((long) result.get("rowid"));
+            apiRoute.setType((String) result.get("type"));
+            if(result.get("content")!=null){
+                apiRoute.setContent(Json.parse((String) result.get("content")));
             }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            try { resultSet.close(); } catch (Exception e) { /* Ignored */ }
-            try { statement.close(); } catch (Exception e) { /* Ignored */ }
-            try { connection.close(); } catch (Exception e) { /* Ignored */ }
+            apiRoute.set_order((String) result.get("_order"));
+            apiRoute.set_limit((Integer) result.get("_limit"));
+            apiRoute.setRoute((String) result.get("route"));
+            if(result.get("template")!=null){
+                apiRoute.setTemplate(Json.parse((String) result.get("template")));
+            }
         }
         return apiRoute;
     }
@@ -120,22 +93,9 @@ public class APIOperations {
         }
         APIRoute apiRoute = new APIRoute();
         apiRoute.setRoute(route);
-        final String insertSql = "INSERT INTO apis (route) VALUES ('" + apiRoute.getRoute() + "') " +
+        final String sql = "INSERT INTO apis (route) VALUES ('" + apiRoute.getRoute() + "') " +
                 "ON CONFLICT(route) DO UPDATE SET deleted = 'FALSE';";
-        Connection connection = null;
-        Statement statement = null;
-        try {
-            connection = _dbConnect.connect();
-            statement = connection.createStatement();
-            boolean execute =  statement.execute(insertSql);
-            return Status.SUCCESS.toString();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            return e.getMessage();
-        } finally {
-            try { statement.close(); } catch (Exception e) { /* Ignored */ }
-            try { connection.close(); } catch (Exception e) { /* Ignored */ }
-        }
+        return _dbConnect.execute(sql);
     }
 
     /**
@@ -146,20 +106,7 @@ public class APIOperations {
         APIRoute apiRoute = new APIRoute();
         apiRoute.setRowid(id);
         final String sql = "DELETE FROM apis WHERE rowid = '" + apiRoute.getRowid() + "' AND deleted = 'TRUE';";
-        Connection connection = null;
-        Statement statement = null;
-        try {
-            connection = _dbConnect.connect();
-            statement = connection.createStatement();
-            boolean execute = statement.execute(sql);
-            return Status.SUCCESS.toString();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            return e.getMessage();
-        } finally {
-            try { statement.close(); } catch (Exception e) { /* Ignored */ }
-            try { connection.close(); } catch (Exception e) { /* Ignored */ }
-        }
+        return _dbConnect.execute(sql);
     }
 
     /**
@@ -168,31 +115,19 @@ public class APIOperations {
      */
     public String updateRoute(UpdateAPIRoute updateAPIRoute) {
         APIRoute diff = updateAPIRoute.getApiRoute();
+        List<String> sqls = new ArrayList<>();
         final String sql = "UPDATE apis SET "+ SqlGenerator.getSets(diff)+" WHERE rowid = "+updateAPIRoute.getRowid()+";";
-        Connection connection = null;
-        Statement statement = null;
-        try {
-            connection = _dbConnect.connect();
-            statement = connection.createStatement();
-            if(diff.getRoute()!=null){
-                String updateEntriesParent = "UPDATE entries SET parent = '"+diff.getRoute()+"', slug = '"+
-                        diff.getRoute()+"' || name WHERE parent = (SELECT route FROM apis WHERE rowid = "+
-                        updateAPIRoute.getRowid()+")";
-                String updateTemplateParent = "UPDATE templates SET parent = '"+diff.getRoute()+"' WHERE parent = " +
-                        "(SELECT route FROM apis WHERE " +
-                        "rowid = "+updateAPIRoute.getRowid()+")";
-                statement.addBatch(updateEntriesParent);
-                statement.addBatch(updateTemplateParent);
-            }
-            statement.addBatch(sql);
-            statement.executeBatch();
-            return Status.SUCCESS.toString();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            return e.getMessage();
-        } finally {
-            try { statement.close(); } catch (Exception e) { /* Ignored */ }
-            try { connection.close(); } catch (Exception e) { /* Ignored */ }
+        sqls.add(sql);
+        if(diff.getRoute()!=null){
+            String updateEntriesParent = "UPDATE entries SET parent = '"+diff.getRoute()+"', slug = '"+
+                    diff.getRoute()+"' || name WHERE parent = (SELECT route FROM apis WHERE rowid = "+
+                    updateAPIRoute.getRowid()+")";
+            String updateTemplateParent = "UPDATE templates SET parent = '"+diff.getRoute()+"' WHERE parent = " +
+                    "(SELECT route FROM apis WHERE " +
+                    "rowid = "+updateAPIRoute.getRowid()+")";
+            sqls.add(updateEntriesParent);
+            sqls.add(updateTemplateParent);
         }
+        return _dbConnect.executeBatch(sqls);
     }
 }

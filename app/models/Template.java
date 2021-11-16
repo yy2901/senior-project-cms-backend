@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,7 +8,7 @@ import lombok.Setter;
 public class Template {
     private Long rowid;
     private String parent;
-    private String fields;
-    private String teaser;
+    private JsonNode fields;
+    private JsonNode teaser;
     private Deleted deleted;
 }

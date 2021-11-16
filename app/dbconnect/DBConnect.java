@@ -6,10 +6,7 @@ import javax.inject.Singleton;
 
 import java.lang.reflect.Field;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Provides database methods
@@ -113,11 +110,36 @@ public class DBConnect {
         return result;
     }
 
-    public List<Map<String,Object>> getResults(String sql, Map<String,String> requiredColumns) {
-        List<Map<String,Object>> results = new ArrayList<>();
+    public String executeBatch(List<String> sqls) {
         Connection connection = null;
         Statement statement = null;
+        String result;
+        try {
+            connection = this.connect();
+            statement = connection.createStatement();
+            for (String sql : sqls) {
+                statement.addBatch(sql);
+            }
+            statement.executeBatch();
+            result = Status.SUCCESS.toString();
+        } catch(SQLException e) {
+            result = e.getMessage();
+        } finally {
+            try{
+                assert connection != null;
+                connection.close();}catch(Exception ignored){}
+            try{
+                assert statement != null;
+                statement.close();}catch (Exception ignored){}
+        }
+        return result;
+    }
+
+    public List<Map<String,Object>> getResults(String sql, Map<String,String> requiredColumns) {
+        List<Map<String,Object>> results = new ArrayList<>();
         ResultSet resultSet = null;
+        Connection connection = null;
+        Statement statement = null;
         try {
             connection = this.connect();
             statement = connection.createStatement();
@@ -125,11 +147,13 @@ public class DBConnect {
             while (resultSet.next()) {
                 Map<String, Object> result = new HashMap<>();
                 for (String column : requiredColumns.keySet()) {
-                    if(requiredColumns.get(column)==String.class.getSimpleName()){
-                        result.put(column, resultSet.getString(column));
-                    } else if(requiredColumns.get(column)==long.class.getSimpleName() ||
-                        requiredColumns.get(column)==Long.class.getSimpleName()){
+                    if (requiredColumns.get(column).equals(long.class.getSimpleName()) ||
+                            requiredColumns.get(column).equals(Long.class.getSimpleName())) {
                         result.put(column, resultSet.getLong(column));
+                    } else if (requiredColumns.get(column).equals(Integer.class.getSimpleName())) {
+                        result.put(column, resultSet.getInt(column));
+                    } else {
+                        result.put(column, resultSet.getString(column));
                     }
                 }
                 results.add(result);
@@ -137,16 +161,19 @@ public class DBConnect {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
-            try { resultSet.close(); } catch (Exception e) { /* Ignored */ }
-            try { statement.close(); } catch (Exception e) { /* Ignored */ }
-            try { connection.close(); } catch (Exception e) { /* Ignored */ }
+            try {
+                assert resultSet != null;
+                resultSet.close();
+            } catch (Exception ignored) {}
+            try{connection.close();}catch(Exception ignored){}
+            try{statement.close();}catch (Exception ignored){}
         }
         return results;
     }
 
-    public static Map<String,String> generateRequiredColumns(Object _object) {
+    public static Map<String,String> generateRequiredColumns(Class<?> cls) {
         Map<String,String> result = new HashMap<>();
-        Field[] fields = _object.getClass().getDeclaredFields();
+        Field[] fields = cls.getDeclaredFields();
         for (Field f:fields) {
             f.setAccessible(true);
             result.put(f.getName(),f.getType().getSimpleName());

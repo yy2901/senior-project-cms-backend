@@ -30,7 +30,7 @@ public class MetaOperations {
 
     public Meta getMeta(long rowid) {
         final String sql = "SELECT rowid, * FROM uploadedFileMeta WHERE rowid = "+rowid+";";
-        Map<String,String> requiredCols = DBConnect.generateRequiredColumns(new Meta());
+        Map<String,String> requiredCols = DBConnect.generateRequiredColumns(Meta.class);
         List<Map<String,Object>> results = _dbConnect.getResults(sql,requiredCols);
         if(results.size()>0){
             return new Meta(results.get(0));
@@ -41,7 +41,7 @@ public class MetaOperations {
 
     public Meta getMeta(String fileName) {
         final String sql = "SELECT rowid, * FROM uploadedFileMeta WHERE fileName = '"+fileName+"';";
-        Map<String,String> requiredCols = DBConnect.generateRequiredColumns(new Meta());
+        Map<String,String> requiredCols = DBConnect.generateRequiredColumns(Meta.class);
         List<Map<String,Object>> results = _dbConnect.getResults(sql,requiredCols);
         if(results.size()>0){
             return new Meta(results.get(0));
@@ -52,7 +52,7 @@ public class MetaOperations {
 
     public List<Meta> getUploadedFilesMeta(){
         final String sql = "SELECT rowid, * FROM uploadedFileMeta;";
-        Map<String, String> requiredColumns = DBConnect.generateRequiredColumns(new Meta());
+        Map<String, String> requiredColumns = DBConnect.generateRequiredColumns(Meta.class);
         List<Map<String, Object>> resultList = _dbConnect.getResults(sql, requiredColumns);
         List<Meta> results = resultList.stream().map(Meta::new).collect(Collectors.toList());
         return results;

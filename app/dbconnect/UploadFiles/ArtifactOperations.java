@@ -42,7 +42,7 @@ public class ArtifactOperations {
 
     public Artifact getArtifact(String fileName) {
         final String sql = "SELECT * FROM uploadedFileArtifacts WHERE fileName = '"+fileName+"';";
-        Map<String, String> requiredColumns = DBConnect.generateRequiredColumns(new Artifact());
+        Map<String, String> requiredColumns = DBConnect.generateRequiredColumns(Artifact.class);
         List<Map<String, Object>> resultSetList = _dbConnect.getResults(sql, requiredColumns);
         if(resultSetList.size()>0){
             Artifact artifact = new Artifact(resultSetList.get(0));

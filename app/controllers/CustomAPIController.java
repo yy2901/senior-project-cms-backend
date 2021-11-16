@@ -15,6 +15,7 @@ import play.mvc.Result;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.List;
 
 @Singleton
 public class CustomAPIController extends Controller {
@@ -33,7 +34,7 @@ public class CustomAPIController extends Controller {
      * @return Play Result of Json response
      */
     public Result getRoutes() {
-        ImmutableList<APIRoute> allRoutes = _apiOperations.getRoutes();
+        List<APIRoute> allRoutes = _apiOperations.getRoutes();
         return ok(Json.toJson(allRoutes));
     }
 

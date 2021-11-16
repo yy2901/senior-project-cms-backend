@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,8 +9,8 @@ public class Entry {
     private Long rowid;
     private String parent;
     private Long time;
-    private String content;
-    private String teaser;
+    private JsonNode content;
+    private JsonNode teaser;
     private String title;
     private String name;
     private String slug;

@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,8 +13,8 @@ import lombok.Setter;
 public class APIRoute {
     private Long rowid;
     private String route;
-    private String content;//content of the route when this route is a single type
-    private String template;//template of the content when this route is a single type
+    private JsonNode content;//content of the route when this route is a single type
+    private JsonNode template;//template of the content when this route is a single type
     private Integer _limit;
     private Type type;
     private Order _order;
