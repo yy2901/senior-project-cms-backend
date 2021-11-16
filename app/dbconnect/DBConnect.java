@@ -104,8 +104,8 @@ public class DBConnect {
         } catch(SQLException e) {
             result = e.getMessage();
         } finally {
-            try{connection.close();}catch(Exception e){}
             try{statement.close();}catch (Exception e){}
+            try{connection.close();}catch(Exception e){}
         }
         return result;
     }
@@ -125,12 +125,8 @@ public class DBConnect {
         } catch(SQLException e) {
             result = e.getMessage();
         } finally {
-            try{
-                assert connection != null;
-                connection.close();}catch(Exception ignored){}
-            try{
-                assert statement != null;
-                statement.close();}catch (Exception ignored){}
+            try{ statement.close(); }catch (Exception ignored){}
+            try{ connection.close(); }catch(Exception ignored){}
         }
         return result;
     }
@@ -161,12 +157,9 @@ public class DBConnect {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
-            try {
-                assert resultSet != null;
-                resultSet.close();
-            } catch (Exception ignored) {}
-            try{connection.close();}catch(Exception ignored){}
+            try {resultSet.close();} catch (Exception ignored) {}
             try{statement.close();}catch (Exception ignored){}
+            try{connection.close();}catch(Exception ignored){}
         }
         return results;
     }

@@ -9,7 +9,6 @@ scalaVersion := "2.13.6"
 
 libraryDependencies ++= Seq(
   guice,
-  javaJdbc,
   "org.xerial" % "sqlite-jdbc" % "3.36.0.3",
   "com.google.guava" % "guava" % "23.0",
   "org.projectlombok" % "lombok" % "1.18.20",
