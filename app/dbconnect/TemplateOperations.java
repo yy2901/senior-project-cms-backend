@@ -41,8 +41,8 @@ public class TemplateOperations {
         if(results.size()>=1){
             template.setRowid((long) results.get(0).get("rowid"));
             template.setParent((String) results.get(0).get("parent"));
-            if(results.get(0).get("fields")!=null){
-                template.setFields(Json.parse((String) results.get(0).get("fields")));
+            if(results.get(0).get("content")!=null){
+                template.setContent(Json.parse((String) results.get(0).get("content")));
             }
             if(results.get(0).get("teaser")!=null){
                 template.setTeaser(Json.parse((String) results.get(0).get("teaser")));

@@ -53,7 +53,7 @@ public class DBConnect {
         final String createTemplatesTable =
                 "CREATE TABLE IF NOT EXISTS templates (" +
                 "parent varchar NOT NULL UNIQUE, " +
-                "fields varchar, " +
+                "content varchar, " +
                 "teaser varchar," +
                 "deleted varchar DEFAULT 'FALSE'" +
                 ");";

@@ -8,7 +8,7 @@ import lombok.Setter;
 public class Template {
     private Long rowid;
     private String parent;
-    private JsonNode fields;
+    private JsonNode content;
     private JsonNode teaser;
     private Deleted deleted;
 }

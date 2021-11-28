@@ -10,3 +10,5 @@ target
 /cms-data.db
 /uploads
 /public
+/deploy.sh
+/start-remote-server.sh

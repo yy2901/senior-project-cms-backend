@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dbconnect.UploadFiles.ArtifactOperations;
 import dbconnect.UploadFiles.DetailFieldsOperations;
 import dbconnect.UploadFiles.MetaOperations;
-import models.Entry;
 import models.UploadFiles.DetailFields;
 import models.UploadFiles.Meta;
 import models.UploadFiles.UpdateDetailFields;
@@ -111,7 +110,7 @@ public class UploadController extends Controller {
     }
 
     public Result download(String name){
-        return ok(new java.io.File("../uploads/"+name));
+        return ok(new File("../uploads/"+name));
     }
 
     public Result getUploadedFile(long id){
