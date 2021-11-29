@@ -1,5 +1,6 @@
 package dbconnect;
 
+import com.google.common.collect.ImmutableMap;
 import helpers.SqlGenerator;
 import models.*;
 import play.libs.Json;
@@ -21,7 +22,10 @@ public class TemplateOperations {
 
     public List<Template> getTrashedTemplates() {
         final String sql = "SELECT rowid, parent FROM templates WHERE deleted = 'TRUE';";
-        List<Map<String,Object>> results = _dbConnect.getResults(sql, DBConnect.generateRequiredColumns(Template.class));
+        List<Map<String,Object>> results = _dbConnect.getResults(sql, ImmutableMap.of(
+                "rowid", long.class.getSimpleName(),
+                "parent", String.class.getSimpleName()
+        ));
         return results.stream().map(result->{
             Template template = new Template();
             template.setRowid((long) result.get("rowid"));

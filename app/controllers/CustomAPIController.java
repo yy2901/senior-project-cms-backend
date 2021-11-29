@@ -43,7 +43,7 @@ public class CustomAPIController extends Controller {
         return ok(Json.toJson(apiRoute));
     }
 
-    public Result setRoute(Http.Request request) {
+    public Result createRoute(Http.Request request) {
         try {
             JsonNode jsonNode = request.body().asJson();
             ObjectMapper mapper = new ObjectMapper();

@@ -1,18 +1,15 @@
 package dbconnect;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import helpers.SqlGenerator;
-import models.APIRoute;
-import models.Status;
-import models.UpdateAPIRoute;
+import models.*;
 import play.libs.Json;
+import play.libs.Time;
+import scala.Option;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -69,12 +66,9 @@ public class APIOperations {
         if(results.size()>=1){
             Map<String, Object> result = results.get(0);
             apiRoute.setRowid((long) result.get("rowid"));
-            apiRoute.setType((String) result.get("type"));
             if(result.get("content")!=null){
                 apiRoute.setContent(Json.parse((String) result.get("content")));
             }
-            apiRoute.set_order((String) result.get("_order"));
-            apiRoute.set_limit((Integer) result.get("_limit"));
             apiRoute.setRoute((String) result.get("route"));
             if(result.get("template")!=null){
                 apiRoute.setTemplate(Json.parse((String) result.get("template")));
@@ -129,5 +123,41 @@ public class APIOperations {
             sqls.add(updateTemplateParent);
         }
         return _dbConnect.executeBatch(sqls);
+    }
+
+    public List<ObjectNode> getCollection(int page, String parent, Option<Integer> _itemsPerPage, Option<String> _timeOrder ){
+        int itemsPerPage;
+        if (_itemsPerPage.isEmpty()) {
+           itemsPerPage = 5;
+        } else {
+            itemsPerPage = _itemsPerPage.get();
+        }
+        TimeOrder timeOrder;
+        if (_timeOrder.isEmpty()) {
+            timeOrder = TimeOrder.DESC;
+        } else {
+            timeOrder = TimeOrder.valueOf(_timeOrder.get());
+        }
+        int offset = (page - 1) * itemsPerPage;
+        final String sql = "SELECT rowid, slug, title, teaser, time FROM entries WHERE parent = '/" + parent + "' ORDER BY time " + timeOrder + " LIMIT " + offset + ", " + itemsPerPage + ";";
+        List<Map<String,Object>> rawResults = _dbConnect.getResults(sql, ImmutableMap.of(
+                "rowid", long.class.getSimpleName(),
+                "slug", String.class.getSimpleName(),
+                "time", long.class.getSimpleName(),
+                "title", String.class.getSimpleName(),
+                "teaser", String.class.getSimpleName()
+        ));
+        List<ObjectNode> results = rawResults.stream().map(rawResult->{
+            ObjectNode result = Json.newObject();
+            result.put("id",(long)rawResult.get("rowid"));
+            result.put("time",((long)rawResult.get("time")));
+            result.put("slug",((String)rawResult.get("slug")));
+            result.put("title",((String)rawResult.get("title")));
+            if(rawResult.get("teaser")!=null){
+                result.set("teaser",(Json.parse((String) rawResult.get("teaser"))));
+            }
+            return result;
+        }).collect(Collectors.toList());
+        return results;
     }
 }

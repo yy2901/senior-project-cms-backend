@@ -5,7 +5,7 @@
 # Route Editor
 GET     /_editor/api-routes                 controllers.CustomAPIController.getRoutes()
 GET     /_editor/api-routes/:route          controllers.CustomAPIController.getRoute(route: String)
-POST    /_editor/api-routes                 controllers.CustomAPIController.setRoute(request: Request)
+POST    /_editor/api-routes                 controllers.CustomAPIController.createRoute(request: Request)
 DELETE  /_editor/api-routes                 controllers.CustomAPIController.deleteRoute(request: Request)
 PUT     /_editor/api-routes                 controllers.CustomAPIController.updateRoute(request: Request)
 
@@ -43,6 +43,7 @@ PUT     /_editor/FilesType                  controllers.UploadController.updateD
 
 # Public Entrypoints
 GET     /api/:parent/:name                  controllers.PublicEndpointsController.getEntry(parent: String, name: String)
+GET     /api/:parent                        controllers.PublicEndpointsController.getCollection(page: Integer, parent: String, pageItems: Option[Integer], order: Option[String])
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /dashboard                          controllers.Assets.at(path="/public",file="index.html")

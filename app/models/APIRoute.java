@@ -15,23 +15,5 @@ public class APIRoute {
     private String route;
     private JsonNode content;//content of the route when this route is a single type
     private JsonNode template;//template of the content when this route is a single type
-    private Integer _limit;
-    private Type type;
-    private Order _order;
     private Deleted deleted;
-
-    private enum Type {
-        SINGLE, COLLECTION
-    }
-    private enum Order {
-        ASC, DESC
-    }
-
-    public void setType(String _type) {
-        type = Type.valueOf(_type);
-    }
-
-    public void set_order(String __order) {
-        _order = Order.valueOf(__order);
-    }
 }

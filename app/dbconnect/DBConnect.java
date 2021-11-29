@@ -33,9 +33,6 @@ public class DBConnect {
                 "CREATE TABLE IF NOT EXISTS apis (" +
                 "route varchar NOT NULL UNIQUE, " +
                 "content varchar, " +
-                "_limit int DEFAULT 10, " +
-                "type varchar DEFAULT 'COLLECTION', " +
-                "_order varchar DEFAULT 'DESC', " +
                 "template varchar, " +
                 "deleted varchar DEFAULT 'FALSE'" +
                 ");";
