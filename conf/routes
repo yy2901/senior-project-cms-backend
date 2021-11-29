@@ -43,7 +43,7 @@ PUT     /_editor/FilesType                  controllers.UploadController.updateD
 
 # Public Entrypoints
 GET     /api/:parent/:name                  controllers.PublicEndpointsController.getEntry(parent: String, name: String)
-GET     /api/:parent                        controllers.PublicEndpointsController.getCollection(page: Integer, parent: String, pageItems: Option[Integer], order: Option[String])
+GET     /api/:parent                        controllers.PublicEndpointsController.getRoute(page: Option[Integer], parent: String, pageItems: Option[Integer], order: Option[String])
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /dashboard                          controllers.Assets.at(path="/public",file="index.html")

@@ -47,8 +47,12 @@ public class PublicEndpointsController extends Controller {
         return ok(result);
     }
 
-    public Result getCollection(int page, String parent, Option<Integer> optionItems, Option<String> optionOrder) {
-        List<ObjectNode> results = _apiOperations.getCollection(page, parent, optionItems, optionOrder);
-        return ok(Json.toJson(results));
+    public Result getRoute(Option<Integer> page, String parent, Option<Integer> optionItems, Option<String> optionOrder) {
+        if(page.isEmpty()){
+            return ok(_apiOperations.getSingle(parent));
+        } else {
+            List<ObjectNode> results = _apiOperations.getCollection(page.get(), parent, optionItems, optionOrder);
+            return ok(Json.toJson(results));
+        }
     }
 }

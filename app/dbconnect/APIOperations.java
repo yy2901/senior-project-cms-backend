@@ -160,4 +160,22 @@ public class APIOperations {
         }).collect(Collectors.toList());
         return results;
     }
+
+    public ObjectNode getSingle(String route) {
+        ObjectNode result = Json.newObject();
+        String sql = "SELECT rowid, route, content FROM apis WHERE route = '/"+route+"';";
+        List<Map<String, Object>> rawResult = _dbConnect.getResults(sql, ImmutableMap.of(
+           "rowid", long.class.getSimpleName(),
+           "route", String.class.getSimpleName(),
+           "content", String.class.getSimpleName()
+        ));
+        if(!rawResult.isEmpty()){
+            result.put("id",(long)rawResult.get(0).get("rowid"));
+            result.put("route",(String)rawResult.get(0).get("route"));
+            if(rawResult.get(0).get("content")!=null){
+                result.set("content",Json.parse((String) rawResult.get(0).get("content")));
+            }
+        }
+        return result;
+    }
 }
