@@ -23,17 +23,19 @@ public class EntryOperations {
     }
 
     public List<Entry> getTrashedEntries() {
-        final String sql = "SELECT rowid, title, slug FROM entries WHERE deleted = 'TRUE';";
+        final String sql = "SELECT l.rowid, l.title, l.name, r.route AS parent FROM entries l JOIN apis r ON r.rowid = l.parent WHERE l.deleted = 'TRUE';";
         List<Map<String, Object>> results = _dbConnect.getResults(sql, ImmutableMap.of(
                 "rowid", long.class.getSimpleName(),
                 "title", String.class.getSimpleName(),
-                "slug", String.class.getSimpleName()
+                "name", String.class.getSimpleName(),
+                "parent", String.class.getSimpleName()
         ));
         return results.stream().map(result->{
             Entry entry = new Entry();
             entry.setRowid((long)result.get("rowid"));
             entry.setTitle((String) result.get("title"));
-            entry.setSlug((String) result.get("slug"));
+            entry.setName((String) result.get("name"));
+            entry.setParent((String) result.get("parent"));
             return entry;
         }).collect(Collectors.toList());
     }
@@ -43,21 +45,24 @@ public class EntryOperations {
      * @return list of Entries
      */
     public List<Entry> getEntries(String parent) {
-        final String sql = "SELECT rowid, title, name, parent, slug FROM entries WHERE parent = '"+parent+"' AND deleted = 'FALSE' ORDER BY time DESC;";
-        List<Map<String, Object>> results = _dbConnect.getResults(sql, ImmutableMap.of(
-                "rowid", long.class.getSimpleName(),
-                "title", String.class.getSimpleName(),
-                "name", String.class.getSimpleName(),
-                "parent", String.class.getSimpleName(),
-                "slug", String.class.getSimpleName()
-        ));
+        final String sql = String.format("SELECT l.rowid, l.title, l.name, r.route AS parent, l.time FROM entries l\n" +
+                "JOIN apis r ON r.rowid = l.parent\n" +
+                "WHERE r.route = '%s' AND l.deleted = 'FALSE' ORDER BY l.time DESC;", parent);
+        List<Map<String, Object>> results = _dbConnect.getResults(sql, ImmutableMap.<String,String>builder()
+                        .put("rowid", long.class.getSimpleName())
+                        .put("title", String.class.getSimpleName())
+                        .put("name", String.class.getSimpleName())
+                        .put("parent", String.class.getSimpleName())
+                        .put("time", long.class.getSimpleName())
+                .build()
+        );
         return results.stream().map(result->{
             Entry entry = new Entry();
             entry.setRowid((long) result.get("rowid"));
             entry.setTitle((String) result.get("title"));
             entry.setParent((String) result.get("parent"));
             entry.setName((String) result.get("name"));
-            entry.setSlug((String) result.get("slug"));
+            entry.setTime((long) result.get("time"));
             return entry;
         }).collect(Collectors.toList());
     }
@@ -66,8 +71,11 @@ public class EntryOperations {
      * Get the Entry
      * @return the Entry
      */
-    public Entry getEntry(String slug) {
-        final String sql = "SELECT rowid, * FROM entries WHERE slug = '"+slug+"' AND deleted = 'FALSE';";
+    public Entry getEntry(String parent, String name) {
+        final String sql = String.format("SELECT l.rowid, l.name, r.route AS parent, l.deleted, l.title, l.time, l.content, l.teaser\n" +
+                "FROM entries l JOIN apis r ON r.rowid=l.parent WHERE r.route = '%s' AND l.name = '%s' AND l.deleted = 'FALSE';",
+                parent, name
+        );
         List<Map<String, Object>> results = _dbConnect.getResults(sql, DBConnect.generateRequiredColumns(Entry.class));
         Entry entry = new Entry();
         if(results.size()>=1){
@@ -83,7 +91,6 @@ public class EntryOperations {
             entry.setTime((long) result.get("time"));
             entry.setName((String) result.get("name"));
             entry.setTitle((String) result.get("title"));
-            entry.setSlug((String) result.get("slug"));
         }
        return entry;
     }
@@ -97,16 +104,10 @@ public class EntryOperations {
             return Status.NO_INPUT.toString();
         }
         Timestamp timestamp =  new Timestamp(System.currentTimeMillis());
-        Entry entry = new Entry();
-        entry.setName(name);
-        entry.setParent(parent);
-        entry.setTitle(title);
-        final String sql = "INSERT INTO entries (parent, name, slug, time, title) VALUES ('" + entry.getParent() + "','" +
-                entry.getName() + "','" +
-                entry.getSlug() + "', " +
-                timestamp.getTime() + ", '" +
-                entry.getTitle()+ "') " +
-                "ON CONFLICT(slug) DO UPDATE SET deleted = 'FALSE';";
+        final String sql = String.format(
+                "INSERT INTO entries (parent, name, time, title) VALUES ((SELECT rowid FROM apis WHERE route='%s'), '%s', %d, '%s') ON CONFLICT(parent, name) DO UPDATE SET deleted = 'FALSE';",
+                parent, name, timestamp.getTime(), title);
+        System.out.println(sql);
         return _dbConnect.execute(sql);
     }
 

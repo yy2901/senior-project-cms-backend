@@ -34,7 +34,7 @@ public class EntryController extends Controller {
     }
 
     public Result getEntry(String parent, String child) {
-        Entry entry = _entryOperations.getEntry("/"+parent+"/"+child);
+        Entry entry = _entryOperations.getEntry("/"+parent,"/"+child);
         return ok(Json.toJson(entry));
     }
 

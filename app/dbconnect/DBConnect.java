@@ -1,5 +1,6 @@
 package dbconnect;
 
+import models.SQLNotGettable;
 import models.Status;
 
 import javax.inject.Singleton;
@@ -38,18 +39,18 @@ public class DBConnect {
                 ");";
         final String createEntriesTable =
                 "CREATE TABLE IF NOT EXISTS entries (" +
-                "parent varchar NOT NULL, " +
+                "parent int NOT NULL, " +
                 "time int, " +
                 "content varchar, " +
                 "teaser varchar, " +
                 "title varchar, " +
                 "name varchar NOT NULL, " +
-                "slug varchar NOT NULL UNIQUE, " +
-                "deleted varchar DEFAULT 'FALSE'" +
+                "deleted varchar DEFAULT 'FALSE', " +
+                "UNIQUE(parent, name)" +
                 ");";
         final String createTemplatesTable =
                 "CREATE TABLE IF NOT EXISTS templates (" +
-                "parent varchar NOT NULL UNIQUE, " +
+                "parent int NOT NULL UNIQUE, " +
                 "content varchar, " +
                 "teaser varchar," +
                 "deleted varchar DEFAULT 'FALSE'" +
@@ -166,7 +167,9 @@ public class DBConnect {
         Field[] fields = cls.getDeclaredFields();
         for (Field f:fields) {
             f.setAccessible(true);
-            result.put(f.getName(),f.getType().getSimpleName());
+            if(!f.isAnnotationPresent(SQLNotGettable.class)){
+                result.put(f.getName(),f.getType().getSimpleName());
+            }
         }
         return result;
     }

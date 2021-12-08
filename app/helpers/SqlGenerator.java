@@ -1,5 +1,6 @@
 package helpers;
 
+import models.SQLNotSettable;
 import models.Helpers.SqlGenerator.Inserts;
 
 import java.lang.reflect.Field;
@@ -22,7 +23,7 @@ public class SqlGenerator {
                 List<String> list = new ArrayList<>();
                 String t = f.getName();
                 Object v = f.get(_object);
-                if (v!=null) {
+                if (v!=null && !f.isAnnotationPresent(SQLNotSettable.class)) {
                     list.add(t);
                     String value = "";
                     if(!f.getGenericType().getTypeName().equals("int") && !f.getGenericType().getTypeName().equals("long")){

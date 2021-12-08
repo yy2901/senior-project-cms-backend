@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter @Setter
 public class Template {
     private Long rowid;
+    @SQLNotSettable
     private String parent;
     private JsonNode content;
     private JsonNode teaser;

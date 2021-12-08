@@ -32,7 +32,7 @@ public class PublicEndpointsController extends Controller {
     }
 
     public Result getEntry(String parent, String name){
-        Entry entry = _entryOperations.getEntry("/"+parent+"/"+name);
+        Entry entry = _entryOperations.getEntry("/"+parent,"/"+name);
         ObjectNode result = Json.newObject();
         result.put("id",entry.getRowid());
         result.put("title",entry.getTitle());

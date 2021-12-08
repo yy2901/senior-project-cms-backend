@@ -139,10 +139,12 @@ public class APIOperations {
             timeOrder = TimeOrder.valueOf(_timeOrder.get());
         }
         int offset = (page - 1) * itemsPerPage;
-        final String sql = "SELECT rowid, slug, title, teaser, time FROM entries WHERE parent = '/" + parent + "' ORDER BY time " + timeOrder + " LIMIT " + offset + ", " + itemsPerPage + ";";
+        final String sql = String.format("SELECT rowid, title, teaser, time, name FROM entries\n" +
+                "WHERE parent = (SELECT rowid FROM apis WHERE route = '/%s') ORDER BY time %s LIMIT %d, %d;",
+                parent, timeOrder, offset, itemsPerPage);
         List<Map<String,Object>> rawResults = _dbConnect.getResults(sql, ImmutableMap.of(
                 "rowid", long.class.getSimpleName(),
-                "slug", String.class.getSimpleName(),
+                "name", String.class.getSimpleName(),
                 "time", long.class.getSimpleName(),
                 "title", String.class.getSimpleName(),
                 "teaser", String.class.getSimpleName()
@@ -151,7 +153,7 @@ public class APIOperations {
             ObjectNode result = Json.newObject();
             result.put("id",(long)rawResult.get("rowid"));
             result.put("time",((long)rawResult.get("time")));
-            result.put("slug",((String)rawResult.get("slug")));
+            result.put("slug","/" + parent + rawResult.get("name"));
             result.put("title",((String)rawResult.get("title")));
             if(rawResult.get("teaser")!=null){
                 result.set("teaser",(Json.parse((String) rawResult.get("teaser"))));

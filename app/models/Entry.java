@@ -7,13 +7,13 @@ import lombok.Setter;
 @Getter @Setter
 public class Entry {
     private Long rowid;
-    private String parent;
+    @SQLNotSettable private String parent;
     private Long time;
     private JsonNode content;
     private JsonNode teaser;
     private String title;
     private String name;
-    private String slug;
+    @SQLNotSettable @SQLNotGettable private String slug;
     private Deleted deleted;
 
     public void setParent(String _parent) {

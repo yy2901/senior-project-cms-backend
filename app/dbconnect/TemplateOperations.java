@@ -21,7 +21,7 @@ public class TemplateOperations {
     }
 
     public List<Template> getTrashedTemplates() {
-        final String sql = "SELECT rowid, parent FROM templates WHERE deleted = 'TRUE';";
+        final String sql = "SELECT l.rowid, r.route AS parent FROM templates l INNER JOIN apis r ON r.rowid = l.parent WHERE l.deleted = 'TRUE';";
         List<Map<String,Object>> results = _dbConnect.getResults(sql, ImmutableMap.of(
                 "rowid", long.class.getSimpleName(),
                 "parent", String.class.getSimpleName()
@@ -39,12 +39,16 @@ public class TemplateOperations {
      * @return the Template
      */
     public Template getTemplate(String route) {
-        final String sql = "SELECT rowid, * FROM templates WHERE parent = '"+route+"' AND deleted = 'FALSE';";
+        final String sql = String.format(
+                "SELECT l.rowid, r.route AS parent, l.content, l.teaser, l.deleted FROM templates l JOIN apis r ON r.rowid = l.parent WHERE r.route = '%s' AND l.deleted = 'FALSE';",
+                route
+        );
         List<Map<String,Object>> results = _dbConnect.getResults(sql, DBConnect.generateRequiredColumns(Template.class));
         Template template = new Template();
         if(results.size()>=1){
             template.setRowid((long) results.get(0).get("rowid"));
             template.setParent((String) results.get(0).get("parent"));
+            template.setDeleted(Deleted.valueOf((String) results.get(0).get("deleted")));
             if(results.get(0).get("content")!=null){
                 template.setContent(Json.parse((String) results.get(0).get("content")));
             }
@@ -63,10 +67,9 @@ public class TemplateOperations {
         if (route==null) {
             return Status.NO_INPUT.toString();
         }
-        Template template = new Template();
-        template.setParent(route);
-        final String insertSql = "INSERT INTO templates (parent) VALUES ('" + template.getParent() + "') " +
-                "ON CONFLICT(parent) DO UPDATE SET deleted = 'FALSE';";
+        final String insertSql = String.format("INSERT INTO templates (parent) VALUES ((SELECT rowid FROM apis WHERE route = '%s')) " +
+                "ON CONFLICT(parent) " +
+                "DO UPDATE SET deleted = 'FALSE';", route);
         return _dbConnect.execute(insertSql);
     }
 
