@@ -129,6 +129,7 @@ public class EntryOperations {
     public String updateEntry(UpdateEntry updateEntry) {
         Entry diff = updateEntry.getEntry();
         final String sql = "UPDATE entries SET "+ SqlGenerator.getSets(diff)+" WHERE rowid = "+updateEntry.getRowid()+";";
+        System.out.println(sql);
         return _dbConnect.execute(sql);
     }
 }

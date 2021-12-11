@@ -1,7 +1,9 @@
 package helpers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import models.SQLNotSettable;
 import models.Helpers.SqlGenerator.Inserts;
+import play.twirl.api.utils.StringEscapeUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -26,10 +28,10 @@ public class SqlGenerator {
                 if (v!=null && !f.isAnnotationPresent(SQLNotSettable.class)) {
                     list.add(t);
                     String value = "";
-                    if(!f.getGenericType().getTypeName().equals("int") && !f.getGenericType().getTypeName().equals("long")){
-                        value = "'" + v.toString() + "'";
-                    } else {
+                    if(f.getGenericType().getTypeName().equals("int") || f.getGenericType().getTypeName().equals("long")){
                         value = v.toString();
+                    } else {
+                        value = "\'" + v.toString().replaceAll("\\s*\\'\\s*","''") + "\'";
                     }
                     list.add(value);
                     result.add(list);
