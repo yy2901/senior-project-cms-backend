@@ -13,11 +13,11 @@ Every api endpoint of this CMS is shown in the left panel. A total 2 layers of r
 ### GET API EndPoints
 |endpoint|data  |
 |--|--|
-| /api/{parent}/{entry} | entry data that includes slug, title, time created, teaser data in JSON, and content data in JSON |
-|/api/{parent}|parent route data regarding parent route is a single type.|
-|/api/{parent}?pageItems={itemsNumber}&page={pageNumber}&order={DESC\|ASC}|regarding parent route is a collection type. get the teaser fields of the entries under this parent route according to the page number, by default itemsNumber=5 and order=DESC, means that entries are ordered from new to old and 5 entries will be returned. |
-|/uploads/{file}|get uploaded file|
-|/api/_fonts| get the fonts added in the Font Manager|
+| `/api/{parent}/{entry}` | entry data that includes slug, title, time created, teaser data in JSON, and content data in JSON |
+|`/api/{parent}`|parent route data regarding parent route is a single type.|
+|`/api/{parent}?pageItems={itemsNumber}&page={pageNumber}&order={DESC\|ASC}`|regarding parent route is a collection type. get the teaser fields of the entries under this parent route according to the page number, by default itemsNumber=5 and order=DESC, means that entries are ordered from new to old and 5 entries will be returned. |
+|`/uploads/{file}`|get uploaded file|
+|`/api/_fonts`| get the fonts added in the Font Manager|
 
 ### Teaser and Content
 For secondary entries, there are two sections, Teaser and Content. When calling api for the entry, data in both teaser and content will be returned. When calling the collection api, only teaser from each entry will be returned.
@@ -37,9 +37,16 @@ Similar to Strapi.io, Primic.io, WordPress Advanced Custom Field Pro, this CMS l
 Building custom fields in the Template Editor is fast, intuitive, and easy. All data is stored in JSON and can be nested as deep as possible.
 
 ### Font Manager
-
+![enter image description here](https://yuhao-personal-storage.s3.us-east-2.amazonaws.com/Screen+Shot+2021-12-12+at+6.49.40+PM.png)
+In the Font Manager, you are allowed to upload and name custom fonts. After update, immediately the font will be injected in the CMS UI with the CSS `@font-face` method. You can then use the name defined in the custom HTML and CSS editor. `fontFamily:{fontName}`
 
 ### Write HTML/CSS code in Template Editor
+- customize html for the choice field
+![choice HTML editor](https://yuhao-personal-storage.s3.us-east-2.amazonaws.com/Screen+Shot+2021-12-12+at+9.28.11+PM.png)
+- customize HTML for the flexible field![enter image description here](https://yuhao-personal-storage.s3.us-east-2.amazonaws.com/Screen+Shot+2021-12-12+at+9.39.59+PM.png)
+- customize CSS for WYSIWYG toolbar, note that all css properties are camel-cased.
+![enter image description here](https://yuhao-personal-storage.s3.us-east-2.amazonaws.com/Screen+Shot+2021-12-12+at+10.06.31+PM.png)
+These custom codes are injected in the entry editor view. See example below.![enter image description here](https://yuhao-personal-storage.s3.us-east-2.amazonaws.com/Screen+Shot+2021-12-12+at+10.10.19+PM.png)
 
 ### File Manager
 When uploading file, images will be compresed into different sizes. Videos' cover image will be automatically extracted and thumbnail will be generated. Currently the uploader doesn't let you choose which frame of the video should be the cover image, if you want to do that, pleaes struct an additional file fields in template editor and extract cover images by yourself then upload it.
