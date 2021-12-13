@@ -52,4 +52,20 @@ These custom codes are injected in the entry editor view. See example below.![en
 When uploading file, images will be compresed into different sizes. Videos' cover image will be automatically extracted and thumbnail will be generated. Currently the uploader doesn't let you choose which frame of the video should be the cover image, if you want to do that, pleaes struct an additional file fields in template editor and extract cover images by yourself then upload it.
 
 ## Build this project
-
+A pre-built distribution will be posted under Release when this project is production ready.
+### Environment:
+Node.js 15
+Java 11
+SBT
+### Folder Structure
+![enter image description here](https://yuhao-personal-storage.s3.us-east-2.amazonaws.com/Screen+Shot+2021-12-12+at+10.14.02+PM.png)
+This repository (Backend), along with the [UI Repo](https://github.com/yy2901/senior-project-cms-ui) should be cloned to under the same folder for storing this project. `cms-data.db` and `uploads` folder will be created at the first time run.
+### Start Developing / Building
+#### Dev
+- go to `senior-project-cms-backend` folder, then run `sbt run`
+- open up a new teminal, go to `senior-project-cms-ui` folder, installing dependencies by run `npm i`, then start react dev server by run `npm start`
+- Visit app in dev mode on `http://localhost:3000`
+Note: Proxy is set to passthrough all backend requests (9000 port) to the frontend (3000 port)
+#### Build
+- go to `senior-project-cms-ui`, run `npm run build-to-backend-repo`
+- after the UI build, go to `senior-project-cms-backend` then run `sbt dist`
